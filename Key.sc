@@ -1,4 +1,4 @@
-// by Charles CŽleste Hutchins and Jascha Narvesson
+// by Charles CŽleste Hutchins and Jascha Narveson
 
 Key {
 

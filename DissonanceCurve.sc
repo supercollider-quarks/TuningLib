@@ -166,6 +166,7 @@ For more information,
 
 	fmInit { |carrier, modulator, depth,  highInterval = 1902|
 	
+		/*
 		var bessel, x, bandwidth, amp, n, band;
 		
 		x = depth / modulator;
@@ -187,6 +188,15 @@ For more information,
 		});
 		
 		this.init(frequ, ampl.normalizeSum, highInterval);
+		*/
+		
+		var spectrum;
+		
+		spectrum = FMSpectrum(carrier, modulator, depth);
+		frequ = spectrum.freqs;
+		ampl = spectrum.amps.normalizeSum;
+		
+		this.init(frequ, ampl, highInterval);
 	}
 
 	
@@ -348,15 +358,40 @@ For more information,
 		^Tuning(tuning, highInterval, "Dissonance Curve");
 	}
 		
-	scale{
+	scale{ |size = inf|
 	/*@
 	desc: Returns a scale in which the Tuning is the minima of the curve.  Every degree of the Tuning is a Scale degree.
+	size: The number of degrees of the scale. For size n, it pickes the n most consonant degrees. Defaults to inf, which makes a Scale degree for every degree of the Tuning.
+
 	@*/
-		var tuning, degrees;
+		var tuning, degrees, scale, tune, tuning_cents, index;
 		
 		tuning = this.tuning;
-		degrees = Array.series(tuning.size, 0, 1);
-		^Scale(degrees, degrees.size, tuning, tuning.name);
+		
+		(size < tuning.size). if({
+		
+			// pick the size most consontant degrees
+			degrees = [];
+			tuning_cents = tuning.cents;
+			scale = cents_scale.sort({|a, b| a.dissonance < b.dissonance});
+			
+			size.do({ |i|
+			
+				tune = scale[i].cents;
+				index = tuning_cents.indexInBetween(tune);
+				index = index.round.asInt;
+				degrees = degrees ++ index;
+			});
+			
+			degrees = degrees.sort;
+			//degrees.post;
+			
+		} , {
+			// take all of the degrees
+			degrees = Array.series(tuning.size, 0, 1);
+		});
+		
+		^Scale(degrees, tuning.size, tuning: tuning, name: tuning.name);
 	
 	}
 	
@@ -425,16 +460,39 @@ For more information,
 	}
 	
 	
-	digestibleScale{ |window = 100|
+	digestibleScale{ |window = 100, size = inf|
 	/*@
-	desc: Returns a scale based on the digestibleTuning.  Every degree of the Tuning is a Scale degree.
-	window: The window size used to compute the digestibleTuning
+	desc: Returns a scale based on the digestibleTuning.	window: The window size used to compute the digestibleTuning
+	size: The number of degrees of the scale. For size n, it pickes the n most consonant degrees. Defaults to inf, which makes a Scale degree for every degree of the Tuning.
 	@*/
-		var tuning, degrees;
+		var tuning, degrees, scale, tune, tuning_cents, index;
 		
 		tuning = this.digestibleTuning(window);
-		degrees = Array.series(tuning.size, 0, 1);
-		^Scale(degrees, degrees.size, tuning, tuning.name);
+		
+		(size < tuning.size). if({
+		
+			// pick the size most consontant degrees
+			degrees = [];
+			tuning_cents = tuning.cents;
+			scale = just_scale.sort({|a, b| a.dissonance < b.dissonance});
+			
+			size.do({ |i|
+			
+				tune = scale[i].cents;
+				index = tuning_cents.indexInBetween(tune);
+				index = index.round.asInt;
+				degrees = degrees ++ index;
+			});
+			
+			degrees = degrees.sort;
+			//degrees.post;
+			
+		} , {
+			// take all of the degrees
+			degrees = Array.series(tuning.size, 0, 1);
+		});
+		
+		^Scale(degrees, tuning.size, tuning: tuning, name: tuning.name);
 	
 	}
 

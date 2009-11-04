@@ -1,4 +1,4 @@
-// By Jascha Narvesson and Charles CŽleste Hutchins
+// By Jascha Narveson and Charles CŽleste Hutchins
 
 Scala : Tuning {
 /*@
